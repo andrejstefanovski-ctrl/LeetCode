@@ -1,44 +1,40 @@
 class Solution {
 public:
-    int Find(int u, vector<int>& parents)
+    void DFS(int start, vector<bool>& vis, vector<vector<int>>& adjList)
     {
-        if (u != parents[u])
+        vis[start]=1;
+        for (auto& it:adjList[start])
         {
-            parents[u] = Find(parents[u], parents);
-        }
-        return parents[u];
-    }
-    void Unite(int u, int v, vector<int>& parent)
-    {
-        int pu = Find(u, parent);
-        int pv = Find(v, parent);
-        if (pu != pv)
-        {
-            parent[pu]=pv;
+            if (!vis[it])
+            {
+                DFS(it, vis, adjList);
+            }
         }
     }
     int findCircleNum(vector<vector<int>>& isConnected) {
         int n=isConnected.size();
-        vector<int>parent(n);
+        vector<vector<int>> adjList(n);
         for (int i=0; i<n; i++)
         {
-            parent[i]=i;
-        }
-        for (int i=0; i<n; i++)
-        {
-            for (int j=0; j<isConnected[i].size(); j++)
+            for (int j=0; j<n; j++)
             {
-                if (i != j && isConnected[i][j]==1)
+                if (isConnected[i][j]==1 && i!=j)
                 {
-                    Unite(i, j, parent);
+                    adjList[i].push_back(j);
+                    adjList[j].push_back(i);
                 }
             }
         }
+        vector<bool> vis(n,0);
+        int ctr=0;
         for (int i=0; i<n; i++)
         {
-            parent[i] = Find(i, parent);
+            if (!vis[i])
+            {
+                ctr++;
+                DFS(i, vis, adjList);
+            }
         }
-        unordered_set<int> uniqueParents(parent.begin(), parent.end());
-        return uniqueParents.size();
+        return ctr;
     }
 };
